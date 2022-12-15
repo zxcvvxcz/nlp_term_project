@@ -1,0 +1,7 @@
+*.bin
+*.model
+*.pkl
+*.sh
+test*
+wandb
+*.ipynb
