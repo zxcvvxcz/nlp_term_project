@@ -1,9 +1,9 @@
 # nlp_term_project
 Codes for training KoBERT(https://huggingface.co/monologg/kobert) with contrastive losses on KoBEST dataset(https://huggingface.co/datasets/skt/kobest_v1).   
 For HellaSwag and COPA, use kobert_mc_no_trainer.py.   
-For BoolQ, WiC, and SentiNeg, use kobert_classification_no_trainer.py
-utils.py includes datasets and loss functions for contrastive learning on each dataset.
-To install requirements, use requirements.txt as below.
+For BoolQ, WiC, and SentiNeg, use kobert_classification_no_trainer.py.   
+utils.py includes datasets and loss functions for contrastive learning on each dataset.   
+To install requirements, use requirements.txt as below.   
 ```
 pip install -r requirements.txt
 ```
