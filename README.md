@@ -74,7 +74,7 @@ accelerate launch --num_processes 2 --gpu_ids 0,1 \
     --model_name_or_path monologg/kobert \
     --task_name $dataset \
     --report_to all \
-    --output_dir ~/nlp_term_project/test-${dataset}-${cl_method}/$seed \
+    --output_dir classification \
     --per_device_train_batch_size 8 \
     --max_length 256 \
     --num_train_epochs 10 \
@@ -83,6 +83,5 @@ accelerate launch --num_processes 2 --gpu_ids 0,1 \
     --learning_rate 5e-6 \
     --alpha 0.2 \
     --temperature 0.3 \
-    --with_tracking \
     --patience 10
 ```
