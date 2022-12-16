@@ -349,15 +349,6 @@ def main():
             os.makedirs(args.output_dir, exist_ok=True)
     accelerator.wait_for_everyone()
 
-    # Get the datasets: you can either provide your own CSV/JSON/TXT training and evaluation files (see below)
-    # or just provide the name of one of the public datasets available on the hub at https://huggingface.co/datasets/
-    # (the dataset will be downloaded automatically from the datasets Hub).
-    #
-    # For CSV/JSON files, this script will use the column called 'text' or the first column if no column called
-    # 'text' is found. You can easily tweak this behavior (see below).
-    #
-    # In distributed training, the load_dataset function guarantee that only one local process can concurrently
-    # download the dataset.
     if args.dataset_config_name is not None:
         # Downloading and loading a dataset from the hub.
         raw_datasets = load_dataset(args.dataset_name, args.dataset_config_name)
@@ -459,9 +450,7 @@ def main():
 
             first_sentences = list(chain(*first_sentences))
             second_sentences = list(chain(*second_sentences))
-            
-        # elif args.dataset_config_name == 'boolq':
-            
+                        
         elif args.dataset_config_name == 'copa':
             is_cause = examples['question']
             first_sentences, second_sentences = [], []
@@ -481,12 +470,6 @@ def main():
                     second_sentences.append(a1)
                     second_sentences.append(a2)
                     
-            # if context_name = context_name + 
-            # context_name = "premise"
-            # question_header_name = 'question'
-        # elif args.dataset_config_name == 'sentineg':
-            
-        # elif args.dataset_config_name == 'wic':
         labels = examples[label_column_name]
 
         # Tokenize
@@ -543,8 +526,6 @@ def main():
                 return_tensors="pt")
             sent1_toks = {k: torch.stack([v[i : i + example_length] for i in range(0, len(v), example_length)]) for k, v in _sent1_toks.items()}
             sent2_toks = {k: torch.stack([v[i : i + example_length] for i in range(0, len(v), example_length)]) for k, v in _sent2_toks.items()}
-            # sent1_length = len(sent1_toks.attention_mask[-1])
-            # sent2_length = len(sent2_toks.attention_mask[-1])
             sent1_length = _sent1_toks.attention_mask.shape[-1]
             sent2_length = _sent2_toks.attention_mask.shape[-1]
             if sent1_length > sent2_length:
@@ -567,7 +548,6 @@ def main():
                     add_special_tokens=True,
                     return_tensors="pt")
                 sent1_toks = {k: torch.stack([v[i : i + example_length] for i in range(0, len(v), example_length)]) for k, v in _sent1_toks.items()}
-            # breakpoint()
         except:
             breakpoint()
         # add labels
@@ -586,7 +566,6 @@ def main():
         )
 
     if args.cl_method is not None:
-        data_collator_train = data_collator
         data_collator_train = collate_fn_batch_encoding_pairwise
     else:
         data_collator_train = data_collator
@@ -766,8 +745,6 @@ def main():
                         total_loss += loss.detach().float()
                     try:
                         if args.cl_method is not None:
-                            # breakpoint()
-                            # cl_loss = nt_xent(cont, args.temperature)
                             if args.cl_method == 'scl':
                                 scl_loss = 0
                                 for i in range(args.per_device_train_batch_size):
@@ -775,7 +752,6 @@ def main():
                                     pooled2 = model.bert(input_ids=batch2['input_ids'][i], attention_mask=batch2['attention_mask'][i], token_type_ids=batch2['token_type_ids'][i]).pooler_output
                                 
                                     scl_loss = scl_loss + nt_xent_sup(pooled1, pooled2, F.one_hot(batch1['labels'][i], num_classes=example_length), args.temperature)
-                                # scl_loss = nt_xent_sup(pooled1, pooled2, batch1['labels'], args.temperature)
                                 train_loss = (loss + (scl_loss * args.alpha)) / args.gradient_accumulation_steps
                             else:
                                 cont = torch.cat([outputs1.hidden_states[-1][:,0,:], outputs2.hidden_states[-1][:,0,:]], dim=-1).view(-1, outputs1.hidden_states[-1][0].shape[-1])
